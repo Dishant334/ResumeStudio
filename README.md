@@ -1,76 +1,23 @@
-# 🧾 AI Resume Builder
+# ResumeStudio
 
-A full-stack Resume Builder application that allows users to create professional resumes using multiple modern templates and AI-powered suggestions.
+ATS-friendly resume builder for engineering students: 9 templates, AI summary/bullet polish, PDF import, public share links.
 
----
+**Stack:** React 19 + Vite + Tailwind 4 + motion · Express 5 + MongoDB · ImageKit · Gemini (OpenAI-compatible API)
 
-## 🚀 Features
-
-- 🧩 Multiple Resume Templates (4 unique designs)
-- 🤖 AI-Powered Suggestions (Professional Summary, Content Enhancements)
-- 👀 Real-time Resume Preview
-- ✏️ Dynamic Form Editing
-- 📱 Fully Responsive UI
-- 🔐 User Authentication (optional if you added)
-
----
-
-## 🧠 AI Integration
-
-- Generate professional summaries instantly  
-- Improve resume content using AI suggestions  
-- Helps users write impactful and structured resumes  
-
----
-
-## 🛠️ Tech Stack
-
-### Frontend
-- React.js
-- Tailwind CSS
-
-### Backend
-- Node.js
-- Express.js
-
-### Database
-- MongoDB
-
-### Other Tools
-- PDF Generation Library
-- AI API (for content suggestions)
-
----
-
-## 🎥 Demo
-
-👉 https://youtu.be/RwSAODlohSY
-
----
-
-## 📸 Screenshots
-
-> Recommended screenshots to add:
-
-- 🏠 Home Page  
-- 🧾 Template Selection Page  
-- ✍️ Resume Form Editor  
-- 👀 Live Preview  
-- 📄 Final Resume Output  
-
----
-
-## ⚙️ Installation
-
+## Run
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/resume-builder.git
+cd server-backend && cp .env.example .env && npm install && npm run server   # :3000
+cd client-frontend && cp .env.example .env && npm install && npm run dev      # :5173
+```
 
-# Navigate into project
-cd resume-builder
+## Environment (server-backend/.env)
+| Var | Notes |
+|---|---|
+| `MONGO_URI` | Atlas/local URI. Empty = embedded dev DB persisted in `.mongo-data/` |
+| `JWT_SECRET` | long random string (required) |
+| `OPENAI_API_KEY` | Gemini key from https://aistudio.google.com/apikey (AI features) |
+| `OPENAI_BASE_URL` / `OPENAI_MODEL` | defaults to Gemini's OpenAI-compatible endpoint / `gemini-2.5-flash` |
+| `IMAGEKIT_PRIVATE_KEY` | optional, profile photo + background removal |
+| `CLIENT_URL` | optional CORS allow-list |
 
-# Install dependencies
-npm install
-
-# Run development server
-nodemon run server
+Never commit `.env` files.

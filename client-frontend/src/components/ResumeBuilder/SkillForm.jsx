@@ -33,15 +33,15 @@ const SkillForm = ({data,onChange}) => {
           <input type='text' placeholder='Enter a skill (e.g., JavaScript,Project Management' className='flex-1 px-3 py-2 text-sm'
           onChange={(e)=>setNewSkill(e.target.value)} value={newSkill} onKeyDown={handlekeyPress}/>
           <button onClick={addSkill} disabled={!newSkill.trim()} className='flex items-center gap-2 px-4 py-2 text-sm
-          bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'><Plus /></button>
+          bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'><Plus /></button>
          </div>
 
        {data.length > 0?(
         <div className='flex flex-wrap gap-2'>
             {data.map((skill,index)=>(
-                <span key={index} className='flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm'>
+                <span key={index} className='flex items-center gap-1 px-3 py-1 bg-brand-100 text-brand-800 rounded-full text-sm'>
                     {skill}
-                   <button onClick={()=>removeSkill(index)} className='ml-1 hover:bg-blue-200 rounded-full p-0.5 transition-colors'><X className='size-3'/></button> 
+                   <button onClick={()=>removeSkill(index)} className='ml-1 hover:bg-brand-200 rounded-full p-0.5 transition-colors'><X className='size-3'/></button> 
                 </span>
             ))}
         </div>
@@ -52,8 +52,8 @@ const SkillForm = ({data,onChange}) => {
         <p className='text-sm'>Add your technical and soft skills above.</p>
         </div>  
     }
-    <div className='bg-blue-50 p-3 rounded-lg'>
-    <p className='text-sm text-blue-800'><strong>Tip:</strong>Add 8-10 relevant skills. Include both technical skills (programming language,tools) and soft skills(leadership,communication)</p>
+    <div className='bg-brand-50 p-3 rounded-lg'>
+    <p className='text-sm text-brand-800'><strong>Tip:</strong>Add 8-10 relevant skills. Include both technical skills (programming language,tools) and soft skills(leadership,communication)</p>
     </div>
     </div>
   )

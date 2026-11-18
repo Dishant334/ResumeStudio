@@ -26,8 +26,8 @@ function App() {
             }else{dispatch(setLoading(false))}
 
         }catch(error){
+          if(error?.response?.status===401) localStorage.removeItem('token')
           dispatch(setLoading(false))
-          console.log(error.message)
         }
      }
 

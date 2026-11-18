@@ -1,174 +1,98 @@
-//controller for enhancing a resume's professional summary
-
 import Resume from "../models/Resume.js";
+import { aiComplete } from "../configs/ai.js";
 
+const fail = (res, error) =>
+  res.status(error.status || 500).json({ message: error.message || "Something went wrong" });
 
-//POST: /api/ai/enhance-pro-sum
-export const enhanceProfessionalSummary=async(req,res)=>{
-    try{
-       const {userContent}=req.body
+const clean = (s) => s.replace(/^```(?:\w+)?\s*|\s*```$/g, "").trim();
 
-       if(!userContent){
-        return res.status(400).json({message:"Missing required field"})
-       }
-    
-const response = await fetch(
-  `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.OPENAI_API_KEY}`,
-  {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      contents: [
-        {
-          parts: [{ text: userContent }]
-        }
-      ]
-    })
-  }
-);
-
-const data = await response.json();
-
-const enhancedContent =
-  data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
-     return res.status(200).json({enhancedContent})
-    }catch(error){
-     console.error("FULL ERROR:", JSON.stringify(error, null, 2));
-  return res.status(400).json({ message: error.message });
-    }
-}
-//controller for enhancing a resume's job description
-//POST : /api/ai/enhance-job-desc
-export const enhanceJobDescription = async (req, res) => {
+// POST /api/ai/enhanced-pro-sum
+export const enhanceProfessionalSummary = async (req, res) => {
   try {
     const { userContent } = req.body;
+    if (!userContent) return res.status(400).json({ message: "Missing required field" });
 
-    if (!userContent) {
-      return res.status(400).json({ message: "Missing required field" });
-    }
-
-    const prompt = `
-Enhance this job description in 1-2 strong resume lines.
-- Use action verbs
-- Include impact/results
-- Make it ATS-friendly
-
-${userContent}
-`;
-
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.OPENAI_API_KEY}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [{ text: prompt }]
-            }
-          ]
-        })
-      }
+    const enhancedContent = clean(
+      await aiComplete(`${userContent}\n\nReturn only the final text, no quotes, no preface.`)
     );
-
-    const data = await response.json();
-
-    const enhancedContent =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
-    res.status(200).json({ enhancedContent });
-
+    if (!enhancedContent) return res.status(502).json({ message: "AI returned an empty response" });
+    return res.status(200).json({ enhancedContent });
   } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: error.message });
+    return fail(res, error);
   }
 };
 
-//controller for uploading a resume to the database
-//POST: /api/ai/upload-resume
+// POST /api/ai/enhanced-job-desc  (also used for project descriptions)
+export const enhanceJobDescription = async (req, res) => {
+  try {
+    const { userContent } = req.body;
+    if (!userContent) return res.status(400).json({ message: "Missing required field" });
+
+    const prompt = `Rewrite this as 2-4 strong resume bullet points (each starting with "• ").
+- Start with action verbs
+- Include impact / measurable results where plausible, but do not invent facts
+- ATS-friendly, concise
+Return only the bullets.
+
+${userContent}`;
+    const enhancedContent = clean(await aiComplete(prompt));
+    if (!enhancedContent) return res.status(502).json({ message: "AI returned an empty response" });
+    return res.status(200).json({ enhancedContent });
+  } catch (error) {
+    return fail(res, error);
+  }
+};
+
+const ALLOWED = [
+  "professional_summary", "skills", "personal_info", "experience",
+  "project", "education", "certifications", "achievements",
+];
+
+// POST /api/ai/upload-resume
 export const uploadResume = async (req, res) => {
   try {
     const { resumeText, title } = req.body;
-    const userId = req.userId;
+    if (!resumeText) return res.status(400).json({ message: "Missing required field" });
 
-    if (!resumeText) {
-      return res.status(400).json({ message: "Missing required field" });
-    }
-
-    const prompt = `
-Extract structured JSON data from this resume.
+    const prompt = `Extract structured JSON data from this resume.
 
 STRICT RULES:
-- Return ONLY valid JSON
-- No explanation text
+- Return ONLY valid JSON, no markdown fences, no explanation
+- Dates as "YYYY-MM" when possible
 - Follow this schema exactly:
 
 {
   "professional_summary": "",
-  "skills": [],
-  "personal_info": {
-    "full_name": "",
-    "profession": "",
-    "email": "",
-    "phone": "",
-    "location": "",
-    "linkedin": "",
-    "website": ""
-  },
-  "experience": [],
-  "project": [],
-  "education": []
+  "skills": [""],
+  "personal_info": {"full_name":"","profession":"","email":"","phone":"","location":"","linkedin":"","github":"","website":""},
+  "experience": [{"company":"","position":"","start_date":"","end_date":"","description":"","is_current":false}],
+  "project": [{"name":"","type":"","tech":"","link":"","description":""}],
+  "education": [{"institution":"","degree":"","field":"","graduation_date":"","gpa":""}],
+  "certifications": [""],
+  "achievements": [""]
 }
 
 Resume:
-${resumeText}
-`;
+${resumeText}`;
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.OPENAI_API_KEY}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [{ text: prompt }]
-            }
-          ]
-        })
-      }
-    );
-
-    const data = await response.json();
-
-    const text =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
-    // 🛡️ SAFE JSON PARSE
-    let parsedData;
+    const text = clean(await aiComplete(prompt));
+    let parsed;
     try {
-      parsedData = JSON.parse(text);
-    } catch (err) {
-      throw new Error("Invalid JSON returned from AI");
+      parsed = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1));
+    } catch {
+      return res.status(502).json({ message: "AI returned invalid JSON. Please try again." });
     }
 
+    const data = {};
+    for (const k of ALLOWED) if (parsed[k] !== undefined) data[k] = parsed[k];
+
     const newResume = await Resume.create({
-      userId,
-      title,
-      ...parsedData
+      userId: req.userId,
+      title: title || "Imported Resume",
+      ...data,
     });
-
-    res.json({ resumeId: newResume._id });
-
+    return res.json({ resumeId: newResume._id });
   } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: error.message });
+    return fail(res, error);
   }
 };

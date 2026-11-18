@@ -8,6 +8,8 @@ const ResumeSchema=new mongoose.Schema({
     accent_color:{type:String,default:'#3B82F6'},
     professional_summary:{type:String,default:''},
     skills:[{type:String}],
+    certifications:[{type:String}],
+    achievements:[{type:String}],
     personal_info:{
         image:{type:String,default:''},
         full_name:{type:String,default:''},
@@ -16,6 +18,7 @@ const ResumeSchema=new mongoose.Schema({
         phone:{type:String,default:''},
         location:{type:String,default:''},
            linkedin:{type:String,default:''},
+            github:{type:String,default:''},
             website:{type:String,default:''}
     },
     experience:[{
@@ -29,6 +32,8 @@ const ResumeSchema=new mongoose.Schema({
     project:[
         {name:{type:String},
          type:{type:String},
+         tech:{type:String},
+         link:{type:String},
          description:{type:String},   
         }
     ],
@@ -36,10 +41,11 @@ const ResumeSchema=new mongoose.Schema({
          institution:{type:String},
         degree:{type:String},
         field:{type:String},
+        graduation_date:{type:String},
         end_date:{type:String},
         gpa:{type:String},  
     }],
-},{timestamp:true,minimize:false})
+},{timestamps:true,minimize:false})
 
 const Resume=mongoose.model('Resume',ResumeSchema)
 

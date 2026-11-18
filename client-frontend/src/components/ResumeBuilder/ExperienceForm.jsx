@@ -2,6 +2,8 @@ import { Briefcase, Loader2, Plus, Sparkle, Trash2 } from 'lucide-react';
 import React from 'react'
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
+import toast from 'react-hot-toast';
+import api from '../../configs/api';
 
 const ExperienceForm = ({data,onChange}) => {
     
@@ -33,13 +35,14 @@ const ExperienceForm = ({data,onChange}) => {
     const generateDescription=async(index)=>{
         setGeneratingIndex(index)
         const experience=data[index]
-        const prompt=`Enhance this job description ${experience.description} for the position of ${experience.position} at ${experience.company}.`
+        if(!experience.description?.trim()){ toast.error('Write a rough description first'); setGeneratingIndex(-1); return }
+        const prompt=`Position: ${experience.position} at ${experience.company}.\nDescription: ${experience.description}`
 
         try{
-            const {data}=await api.post('/api/ai/enhanced-job-desc',{userContent:prompt},{headers:{Authorization:token}})
+            const {data}=await api.post('/api/ai/enhanced-job-desc',{userContent:prompt},{headers:{Authorization:`Bearer ${token}`}})
             updateExperience(index,"description",data.enhancedContent)
         }catch(error){
-            toast.error(error.message)
+            toast.error(error?.response?.data?.message || error.message)
         }finally{
             setGeneratingIndex(-1)
         }
@@ -52,7 +55,7 @@ const ExperienceForm = ({data,onChange}) => {
         <p className=' text-sm text-gray-500'>Add your job experience</p>
          </div>
         <div>
-            <button onClick={()=>addExperience()} className='flex items-center gap-2 px-3 py-2 text-sm bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors'>
+            <button onClick={()=>addExperience()} className='flex items-center gap-2 px-3 py-2 text-sm bg-brand-100 text-brand-700 rounded hover:bg-brand-200 transition-colors'>
                <Plus className='size-4'/>Add Experience
             </button>
          </div>
@@ -97,7 +100,7 @@ const ExperienceForm = ({data,onChange}) => {
             <div className='space-y-2'>
                 <div className='flex items-center justify-between'>
                     <label className='text-sm font-medium text-gray-700'>Job Description</label>
-                    <button onClick={()=>generateDescription(index)} disabled={generatingIndex ===index || !experience.position || !experience.company} className='flex items-center gap-1 px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors disabled:opacity-50'>
+                    <button onClick={()=>generateDescription(index)} disabled={generatingIndex ===index || !experience.position || !experience.company} className='flex items-center gap-1 px-2 py-1 text-xs bg-brand-100 text-brand-700 rounded hover:bg-brand-200 transition-colors disabled:opacity-50'>
                      {generatingIndex===index  ?  <Loader2 className='animate-spin size-3'/> :   ( <Sparkle className='size-3'/>) }
                         Enhance with AI
                     </button>

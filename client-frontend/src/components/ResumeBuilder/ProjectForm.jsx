@@ -1,12 +1,29 @@
-import { FolderCode,Plus,  Trash2,Sparkle } from 'lucide-react';
-import React from 'react'
-import { useState } from 'react';
+import { FolderCode,Plus,  Trash2,Sparkle, Loader2 } from 'lucide-react';
+import React, { useState } from 'react'
+import { useSelector } from 'react-redux'
+import toast from 'react-hot-toast'
+import api from '../../configs/api'
 
 const ProjectForm = ({data,onChange}) => {
+    const {token}=useSelector(state=>state.auth)
+    const [busy,setBusy]=useState(-1)
+    const enhance=async(index)=>{
+        const p=data[index]
+        if(!p.description?.trim()){ toast.error('Write a rough description first'); return }
+        setBusy(index)
+        try{
+            const prompt=`Project: ${p.name} (${p.type||''}). Tech: ${p.tech||''}.\nDescription: ${p.description}`
+            const res=await api.post('/api/ai/enhanced-job-desc',{userContent:prompt},{headers:{Authorization:`Bearer ${token}`}})
+            updateProject(index,'description',res.data.enhancedContent)
+        }catch(err){ toast.error(err?.response?.data?.message || err.message) }
+        finally{ setBusy(-1) }
+    }
       const addProject=()=>{
         const newProject={
             name:"",
             type:"",
+            tech:"",
+            link:"",
             description:"",
         };
         onChange([...data,newProject])
@@ -29,7 +46,7 @@ const ProjectForm = ({data,onChange}) => {
         <p className=' text-sm text-gray-500'>Add your Project details</p>
          </div>
         <div>
-            <button onClick={()=>addProject()} className='flex items-center gap-2 px-3 py-2 text-sm bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors'>
+            <button onClick={()=>addProject()} className='flex items-center gap-2 px-3 py-2 text-sm bg-brand-100 text-brand-700 rounded hover:bg-brand-200 transition-colors'>
                <Plus className='size-4'/>Add Project
             </button>
          </div>
@@ -54,14 +71,18 @@ const ProjectForm = ({data,onChange}) => {
                 <input value={project.name || ""} onChange={(e)=>updateProject(index,"name",e.target.value)} 
                 type="text" placeholder='Project Name' className='px-3 py-2 text-sm rounded-lg' />
                  <input value={project.type || ""} onChange={(e)=>updateProject(index,"type",e.target.value)} 
-                type="text" placeholder="type of project" className='px-3 py-2 text-sm rounded-lg' />
+                type="text" placeholder="Type (e.g., Web App, IoT, ML)" className='px-3 py-2 text-sm rounded-lg' />
+                 <input value={project.tech || ""} onChange={(e)=>updateProject(index,"tech",e.target.value)} 
+                type="text" placeholder="Tech stack (React, Node, MongoDB)" className='px-3 py-2 text-sm rounded-lg' />
+                 <input value={project.link || ""} onChange={(e)=>updateProject(index,"link",e.target.value)} 
+                type="text" placeholder="GitHub / live link" className='px-3 py-2 text-sm rounded-lg' />
             </div>
          
             <div className='space-y-2'>
                 <div className='flex items-center justify-between'>
                     <label className='text-sm font-medium text-gray-700'>Project Description</label>
-                    <button className='flex items-center gap-1 px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors disabled:opacity-50'>
-                        <Sparkle className='size-3'/>
+                    <button disabled={busy===index} onClick={()=>enhance(index)} className='flex items-center gap-1 px-2 py-1 text-xs bg-brand-100 text-brand-700 rounded hover:bg-brand-200 transition-colors disabled:opacity-50'>
+                        {busy===index? <Loader2 className='size-3 animate-spin'/> : <Sparkle className='size-3'/>}
                         Enhance with AI
                     </button>
                 </div>

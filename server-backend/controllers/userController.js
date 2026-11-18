@@ -11,10 +11,14 @@ const generateToken = (userId) => {
 
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, password } = req.body;
+    const email = (req.body.email || "").trim().toLowerCase();
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: "Missing required fields" });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
     }
 
     const existingUser = await User.findOne({ email });
@@ -47,7 +51,8 @@ export const registerUser = async (req, res) => {
 
 export const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { password } = req.body;
+    const email = (req.body.email || "").trim().toLowerCase();
 
     if (!email || !password) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -101,7 +106,7 @@ export const getUserResume = async (req, res) => {
   try {
     const userId = req.userId;
 
-    const resumes = await Resume.find({ userId });
+    const resumes = await Resume.find({ userId }).sort({ updatedAt: -1 });
 
     return res.status(200).json({ resumes });
   } catch {

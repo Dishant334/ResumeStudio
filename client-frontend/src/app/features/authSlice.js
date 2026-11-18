@@ -13,7 +13,7 @@ const authSlice=createSlice({
         state.user=action.payload.user
     },
     logout:(state)=>{
-        state.token=''
+        state.token=null
         state.user=null
         localStorage.removeItem('token')
     },

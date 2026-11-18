@@ -12,7 +12,8 @@ const Summary = ({data,onChange,setResumeData} ) => {
   const generateSummary=async()=>{
     try{
       setIsGenerating(true)
-      const prompt=`enhance my professional summary and dont give extra words only transform this summary to better dont exagerate dont increase its length a lot just increase or decrease 20-30 extra words in it "${data}"`
+      if(!data?.trim()){ toast.error('Write a rough summary first, then enhance it'); return }
+      const prompt=`Improve this resume professional summary. Keep it truthful, concise and ATS-friendly; change length by at most 20-30 words: "${data}"`
       const response= await api.post('/api/ai/enhanced-pro-sum',{userContent: prompt},{headers:{Authorization:`Bearer ${token}`}})
       setResumeData(prev => ({...prev,professional_summary:response.data.enhancedContent}))
     }catch(err){
@@ -29,9 +30,9 @@ const Summary = ({data,onChange,setResumeData} ) => {
           <p className='text-sm text-gray-500'>Add summary for your resume here</p>
         </div>
      
-     <button disabled={isGenerating} onClick={generateSummary} className='flex items-center gap-2 px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded
-      hover:bg-purple-200 transition-colors disabled:opacity'>
-      {isGenerating? (<Loader2 className='size=4 animate-spin '/>): (
+     <button disabled={isGenerating} onClick={generateSummary} className='flex items-center gap-2 px-3 py-1 text-sm bg-brand-100 text-brand-700 rounded
+      hover:bg-brand-200 transition-colors disabled:opacity-60'>
+      {isGenerating? (<Loader2 className='size-4 animate-spin '/>): (
            <Sparkle className='size-4'/>)}
            {isGenerating ? "Enhancing..." : "AI Enhance"}
 
@@ -39,9 +40,9 @@ const Summary = ({data,onChange,setResumeData} ) => {
     </div>
      <div className='mt-6'>
       <textarea rows={7} value={data || ""} onChange={(e)=>onChange(e.target.value)} name="Summary" id="summary" className='w-full p-3 px-4 mt-2 border text-sm border-gray-300 
-      rounded-lg focus:ring focus:ring-blue-500 focus:border-blue-500 outline-none
+      rounded-lg focus:ring focus:ring-brand-500 focus:border-brand-500 outline-none
        transition-colors resize-none' placeholder='Write Professional Summary'></textarea>
-       <p>Keep it concise </p>
+       <p className='text-xs text-gray-500 mt-2'>Keep it concise: 2–3 lines work best.</p>
      </div>
 
     </div>

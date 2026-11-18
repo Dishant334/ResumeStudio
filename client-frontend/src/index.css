@@ -1,36 +1,47 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300..700&family=Fraunces:opsz,wght@9..144,400..700&display=swap');
 
 @import "tailwindcss";
 
-*{
- font-family: "Outfit", sans-serif; 
+@theme {
+  --font-display: "Fraunces", Georgia, serif;
+  --color-paper: #dce8f7;
+  --color-ink: #0c2149;
+  --color-brand-50: #fff3ee;  --color-brand-100: #ffe2d6; --color-brand-200: #ffc3a9;
+  --color-brand-300: #ff9b73; --color-brand-400: #f56f42; --color-brand-500: #e4572e;
+  --color-brand-600: #c9431f; --color-brand-700: #a63519; --color-brand-800: #862f1a;
+  --color-brand-900: #6e2b1a; --color-brand-950: #3c130a;
 }
+
+html, body { font-family: "Outfit", system-ui, sans-serif; }
 
 @layer base{
     button{
         @apply cursor-pointer
     }
     input:not([type='checkbox']){
-        @apply outline-none focus:ring border border-gray-300 focus:ring-blue-500 focus:border-blue-500 rounded-lg
+        @apply outline-none focus:ring border border-stone-300 focus:ring-brand-400 focus:border-brand-500 rounded-lg
     }
     textarea{
-        @apply outline-none focus:ring border border-gray-300 focus:ring-blue-500 focus:border-blue-500 rounded-lg
+        @apply outline-none focus:ring border border-stone-300 focus:ring-brand-400 focus:border-brand-500 rounded-lg
     }
 }
 
+/* ---------- design tokens ---------- */
+:root { --brand: #4f46e5; }
+body { @apply bg-paper text-ink antialiased; }
+
+/* A4 page rendering for the live preview */
+.resume-page > div { max-width: none !important; }
+
+/* ---------- print: only the resume ---------- */
+@page { size: A4; margin: 8mm; }
 @media print {
-  body * {
-    visibility: hidden;
+  html, body { background: #fff !important; }
+  .resume-page {
+    width: 100% !important;
+    zoom: 1 !important;
+    box-shadow: none !important;
+    --tw-ring-shadow: 0 0 #0000 !important;
   }
-
-  .print-area, .print-area * {
-    visibility: visible;
-  }
-
-  .print-area {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-  }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }

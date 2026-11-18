@@ -1,7 +1,5 @@
 import { GraduationCap, Plus, Trash2 } from 'lucide-react';
 import React from 'react'
-import { useSelector } from 'react-redux';
-import { useState } from 'react';
 
 const EducationForm = ({data,onChange}) => {
       const addEducation=()=>{
@@ -32,7 +30,7 @@ const EducationForm = ({data,onChange}) => {
         <p className=' text-sm text-gray-500'>Add your education details</p>
          </div>
         <div>
-            <button onClick={()=>addEducation()} className='flex items-center gap-2 px-3 py-2 text-sm bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors'>
+            <button onClick={()=>addEducation()} className='flex items-center gap-2 px-3 py-2 text-sm bg-brand-100 text-brand-700 rounded hover:bg-brand-200 transition-colors'>
                <Plus className='size-4'/>Add Education
             </button>
          </div>
